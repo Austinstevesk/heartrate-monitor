@@ -6,7 +6,7 @@ SoftwareSerial gprsSerial(9, 10); //Rx, Tx -> For GSM module
 LiquidCrystal lcd(2,3,4,5,6,7); //RS, E, D4, D5, D6, D7
  
 
-String number = "+254797277217";
+String number = "+254712746036";
  
 //Variables
 float temp;
@@ -187,7 +187,7 @@ if (gprsSerial.available()){
   ShowSerialData();
  
   gprsSerial.println((char)26);//sending
-  delay(5000);//waitting for reply, important! the time is base on the condition of internet 
+  delay(5000);//waiting for reply, important! the time is base on the condition of internet 
   gprsSerial.println();
  
   ShowSerialData();
