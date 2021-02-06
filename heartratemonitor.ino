@@ -11,7 +11,6 @@ String number = "+254736576958";
 //Variables
 
 int count = 0;
-String tempC;
 int error;
 int pulsePin = A1; // Pulse Sensor connected to analog pin
 int buzzer = 13; // pin to send sound to buzzer
