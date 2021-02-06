@@ -6,17 +6,15 @@ SoftwareSerial gprsSerial(9, 10); //Rx, Tx -> For GSM module
 LiquidCrystal lcd(2,3,4,5,6,7); //RS, E, D4, D5, D6, D7
  
 
-String number = "+254712746036";
+String number = "+254736576958";
  
 //Variables
-float temp;
-int hum;
+
+int count = 0;
 String tempC;
 int error;
 int pulsePin = A1; // Pulse Sensor connected to analog pin
 int buzzer = 13; // pin to send sound to buzzer
-int fadePin = 5;
-int faderate = 0;
 bool alert = false;
  
 // Volatile Variables, used in the interrupt service routine!
@@ -37,11 +35,11 @@ volatile int thresh = 525; // used to find instant moment of heart beat
 volatile int amp = 100; // used to hold amplitude of pulse waveform
 volatile boolean firstBeat = true; // used to seed rate array
 volatile boolean secondBeat = false; // used to seed rate array
+int sendtime = 0;
 
  
 void setup()
-{      
-pinMode(fadePin,OUTPUT);                     
+{                    
 interruptSetup();
 lcd.begin(16, 2);
 lcd.print("Connecting...");
@@ -54,10 +52,16 @@ interruptSetup();
 
  
 void loop(){
+ int temp = 0;
+
   if(QS){
 lcd.clear();
 start:
 error=0;
+  if (millis() - sendtime >= 60000){
+    updatebeat();
+    sendtime = millis();
+  }
 lcd.setCursor(0, 0);
 lcd.print("BPM = ");
 lcd.print(BPM);
@@ -75,7 +79,11 @@ if(alert == false){
       lcd.print(BPM);
       lcd.setCursor(0,1);
       lcd.print("BPM Too High");
-      bpmTooHigh();
+      while(temp<1){
+        bpmTooHigh();
+        temp++;
+      }
+      
       alert = true;
 }
 if(BPM<35){
@@ -86,7 +94,10 @@ if(BPM<35){
   lcd.print(BPM);
   lcd.setCursor(0,1);
   lcd.print("BPM too Low");
+  while(temp<1){
   bpmTooLow();
+  temp++;
+  }
   alert = true;
   
 }
@@ -104,7 +115,7 @@ if(alert){
   }
 }
 
-updatebeat();
+
 if (error==1){
 goto start; //go to label "start"
 }
@@ -121,13 +132,14 @@ QS = false;
    
 
   }
-
 delay(100);
 }
  
 void updatebeat(){
 if (gprsSerial.available()){
-    Serial.write(gprsSerial.read());
+  Serial.println("->");
+  Serial.println("Sending data now");
+    //Serial.write(gprsSerial.read());
  
   gprsSerial.println("AT");
  
@@ -154,33 +166,28 @@ if (gprsSerial.available()){
   gprsSerial.println("AT+CSTT=\"safaricom\"");//start task and setting the APN,
   delay(1000);
  
-  ShowSerialData();
+  //ShowSerialData();
  
   gprsSerial.println("AT+CIICR");//bring up wireless connection
   delay(3000);
  
-  ShowSerialData();
- 
   gprsSerial.println("AT+CIFSR");//get local IP adress
   delay(2000);
  
-  ShowSerialData();
  
   gprsSerial.println("AT+CIPSPRT=0");
   delay(3000);
- 
-  ShowSerialData();
+
   
   gprsSerial.println("AT+CIPSTART=\"TCP\",\"api.thingspeak.com\",\"80\"");//start up the connection
   delay(6000);
  
-  ShowSerialData();
  
   gprsSerial.println("AT+CIPSEND");//begin send data to remote server
-  delay(4000);
-  ShowSerialData();
+  //delay(4000);
+  //ShowSerialData();
   
-  String str="GET https://api.thingspeak.com/update?api_key=MD868VXVCJSZEJ1Y&field1=" + String(BPM);
+  String str="GET https://api.thingspeak.com/update?api_key=EWM1RDNWEK8RLINJ&field1=" + String(BPM);
   Serial.println(str);
   gprsSerial.println(str);//begin send data to remote server
   
@@ -188,16 +195,19 @@ if (gprsSerial.available()){
  
   gprsSerial.println((char)26);//sending
   delay(5000);//waiting for reply, important! the time is base on the condition of internet 
-  gprsSerial.println();
+  //gprsSerial.println();
  
   ShowSerialData();
  
   gprsSerial.println("AT+CIPSHUT");//close the connection
   delay(100);
-  ShowSerialData();
+  //ShowSerialData();
 }
 else{
-  Serial.println("Unable to send data");
+  while(count<1){
+  Serial.println("Not sending data currently");
+  count++;
+  }
 }
 }
 
@@ -206,7 +216,7 @@ void ShowSerialData()
   while(gprsSerial.available()!=0)
   Serial.write(gprsSerial.read());
   Serial.println("GPRS Available");
-  delay(5000); 
+  //delay(5000); 
   
 }
  
@@ -326,6 +336,6 @@ sei();
       delay(100);
       gprsSerial.println((char)26);// ASCII code of CTRL+Z
       Serial.println("Sms sent");
-      delay(1000);
+      delay(3000);
       //_buffer = _readSerial();
     }
