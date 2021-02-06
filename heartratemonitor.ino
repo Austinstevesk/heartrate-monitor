@@ -183,8 +183,7 @@ if (gprsSerial.available()){
  
  
   gprsSerial.println("AT+CIPSEND");//begin send data to remote server
-  //delay(4000);
-  //ShowSerialData();
+
   
   String str="GET https://api.thingspeak.com/update?api_key=EWM1RDNWEK8RLINJ&field1=" + String(BPM);
   Serial.println(str);
@@ -194,13 +193,12 @@ if (gprsSerial.available()){
  
   gprsSerial.println((char)26);//sending
   delay(5000);//waiting for reply, important! the time is base on the condition of internet 
-  //gprsSerial.println();
+
  
   ShowSerialData();
  
   gprsSerial.println("AT+CIPSHUT");//close the connection
   delay(100);
-  //ShowSerialData();
 }
 else{
   while(count<1){
