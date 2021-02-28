@@ -85,6 +85,7 @@ if(alert == false){
       
       alert = true;
 }
+ //set a threshold for a low BPM
 if(BPM<35){
   digitalWrite(buzzer, HIGH);
   lcd.clear();
