@@ -71,6 +71,7 @@ Serial.println(BPM);
 delay(1000);
 
 if(alert == false){
+ //A threshold for the high BPM
    if(BPM>100){
       digitalWrite(buzzer, HIGH);
       lcd.clear();
