@@ -6,7 +6,7 @@ SoftwareSerial gprsSerial(9, 10); //Rx, Tx -> For GSM module
 LiquidCrystal lcd(2,3,4,5,6,7); //RS, E, D4, D5, D6, D7
  
 
-String number = "+254736576958";
+String number = "+2547...";
  
 //Variables
 
